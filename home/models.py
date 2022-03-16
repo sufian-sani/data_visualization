@@ -9,3 +9,6 @@ class jsonModel(models.Model):
     open = models.CharField(max_length=10)
     close = models.CharField(max_length=10)
     volume = models.CharField(max_length=20)
+
+    def __str__(self):
+        return str(self.date)

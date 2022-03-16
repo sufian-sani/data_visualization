@@ -3,7 +3,26 @@
 
 {% block body_block %}
 
-<h1>Data Table</h1>
+<h2>Line Chart:</h2>
+<br>
+
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+<br>
+<hr>
+
+<h2>Bar Chart:</h2>
+<br>
+    <div>
+        <canvas id="bmyChart" width="400" height="400"></canvas>
+    </div>
+<br>
+<hr>
+
+<h1>Data Table:</h1>
+<br>
 
 
 
@@ -18,10 +37,12 @@
             <th scope="col">Open</th>
             <th scope="col">Close</th>
             <th scope="col">Volume</th>
+            <th scope="col">Update</th>
+            <th scope="col">Delete</th>
         </tr>
         </thead>
         <tbody>
-        {% for i in data1 %}
+        {% for i in queryset %}
         <tr>
             <th scope="row">{{forloop.counter}}</th>
             <td>{{i.date}}</td>
@@ -31,14 +52,120 @@
             <td>{{i.open}}</td>
             <td>{{i.close}}</td>
             <td>{{i.volume}}</td>
+            <td><a href="{% url 'home:edit' pk=i.id %}" class="btn btn-info">Edit</a></td>
+            <td><a href="{% url 'home:delete' pk=i.id %}" class="btn btn-danger">Delete</a></td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
 
-{% comment %} {% for i in data1 %} {% endcomment %}
+    <script>
 
-{% comment %} {% endfor %} {% endcomment %}
+        {% comment %} line chart {% endcomment %}
+
+        let yValues = [{% for i in close_main_get_all %} {{i}}, {% endfor %}];
+
+        let maxYaxis = Math.max(...yValues)
+        let minYaxis = Math.min(...yValues)
+        
+        var samplexValues = [{% for j in date_main_get_all %} '{{j}}', {% endfor %}];
+
+        var newDateFormate= [];
+        for (let x of samplexValues){
+            let nDateFormate=new Date(x);
+            nDateFormate.toDateString();
+            newDateFormate.push(nDateFormate);
+        }
+
+        const data = {
+        labels: newDateFormate,
+        datasets: [{
+            label: 'Close and Date',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: yValues,
+        }]
+        };
+
+        const myChart = new Chart(
+            document.getElementById('myChart'),
+            config = {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            max: maxYaxis,
+                            min: minYaxis,
+                            ticks: {
+                                stepSize: 0.1
+                            }
+                        }
+                    }
+                }
+                    
+                }
+            );
+
+        {% comment %} line chart {% endcomment %}
+
+        {% comment %} bar chart {% endcomment %}
+
+        let byValues = [{% for i in volume_main_get_all %} {{i}}, {% endfor %}];
+
+        var bsamplexValues = [{% for j in h_date_main_get_all %} '{{j}}', {% endfor %}];
+
+        var bnewDateFormate= [];
+        for (let x of bsamplexValues){
+            let bnDateFormate=new Date(x);
+            bnDateFormate.toDateString();
+            //console.log(nDateFormate)
+            //console.log(typeof nDateFormate)
+            bnewDateFormate.push(bnDateFormate);
+        }
+        {% comment %} console.log(bnewDateFormate) {% endcomment %}
+
+        const bctx = document.getElementById('bmyChart').getContext('2d');
+        const bmyChart = new Chart(bctx, {
+            type: 'bar',
+            data: {
+                labels: bnewDateFormate,
+                datasets: [{
+                    label: 'Data and Volume',
+                    data: byValues,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+        {% comment %} bar chart {% endcomment %}
+
+
+    </script>
 
 {% endblock %}
 

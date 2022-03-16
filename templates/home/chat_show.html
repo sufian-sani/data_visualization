@@ -1,0 +1,83 @@
+{% extends 'basic.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title_block %} Chart Show {% endblock %}
+
+{% block body_block %}
+
+<h1>Chart:</h1>
+
+{% comment %} <canvas id="myChart" width="400" height="400"></canvas> {% endcomment %}
+
+
+{% comment %} {% for j in date_main_get_all %} <p>{{j}} </p>{% endfor %} {% endcomment %}
+{% comment %} <canvas id="myChart"></canvas> {% endcomment %}
+
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+
+// var ctx = document.getElementById("myChart");
+
+    var xValues = [{% for i in close_main_get_all %} {{i}}, {% endfor %}];
+    //var yValues = [5,9,10,12,15,19,25];
+    {% comment %} var yValues = [{% for j in date_main_get_all %} {{j}}, {% endfor %}]; {% endcomment %}
+    var sampleyValues = [{% for j in date_main_get_all %} '{{j}}', {% endfor %}];
+    {% comment %} var yValues = [{% for j in date_main_get_all %} '{{j}}', {% endfor %}]; {% endcomment %}
+    //console.log(sampleyValues)
+    //console.log(typeof sampleyValues)
+    newDateFormate= [];
+    for (let x of sampleyValues){
+        nDateFormate=new Date(x);
+        nDateFormate.toDateString();
+        //console.log(nDateFormate)
+        //console.log(typeof nDateFormate)
+        newDateFormate.push(nDateFormate);
+    }
+    
+    {% comment %} for (let x of newDateFormate){
+        console.log(typeof x)
+        console.log(x)
+    } {% endcomment %}
+    var yValues = newDateFormate;
+
+
+    new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: xValues,
+        datasets: [{
+            label: '# of Votes',
+            fill: false,
+            //lineTension: 0,
+            data: sampleyValues,
+            backgroundColor: "rgba(0,0,255,1.0)",
+            borderColor: "rgba(0,0,255,0.1)",
+        }]
+    },
+
+    options: {
+        legend: {display: false},
+        scales: {
+            //y: { 
+                //type: 'time',
+                //time: {
+                    //parsing: false,
+                    //unit: 'month',
+                    //displayFormats: {
+                        //'date': 'MMM-YYYY',
+                    //},
+                //}
+            //},
+        yAxes: sampleyValues,
+        //yAxes: [{ticks: yValues}],
+        //yAxes: [{ticks: {min: 0, max:40}}],
+        //}
+    }
+    }
+    });
+
+</script>
+
+{% comment %} <script src="{% static 'js/chat_add.js' %}"></script> {% endcomment %}
+{% endblock %}

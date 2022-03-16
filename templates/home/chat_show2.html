@@ -1,0 +1,79 @@
+{% extends 'basic.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title_block %} Chart Show {% endblock %}
+
+{% block body_block %}
+
+<h1>Chart:</h1>
+
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+{% comment %} <canvas id="myChart" width="400" height="400"></canvas> {% endcomment %}
+
+
+{% comment %} {% for j in date_main_get_all %} <p>{{j}} </p>{% endfor %} {% endcomment %}
+{% comment %} <canvas id="myChart"></canvas> {% endcomment %}
+
+<script>
+    let yValues = [{% for i in close_main_get_all %} {{i}}, {% endfor %}];
+
+    let maxYaxis = Math.max(...yValues)
+    let minYaxis = Math.min(...yValues)
+    
+    var samplexValues = [{% for j in date_main_get_all %} '{{j}}', {% endfor %}];
+
+    var newDateFormate= [];
+    for (let x of samplexValues){
+        let nDateFormate=new Date(x);
+        nDateFormate.toDateString();
+        //console.log(nDateFormate)
+        //console.log(typeof nDateFormate)
+        newDateFormate.push(nDateFormate);
+    }
+
+    {% comment %} const labels = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+  ]; {% endcomment %}
+
+  const data = {
+    labels: newDateFormate,
+    datasets: [{
+      label: 'Close and Date',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+      data: yValues,
+    }]
+  };
+
+    const myChart = new Chart(
+        document.getElementById('myChart'),
+        config = {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    x: {
+                        max: maxYaxis,
+                        min: minYaxis,
+                        ticks: {
+                            stepSize: 0.1
+                        }
+                    }
+                }
+            }
+                
+          }
+      );
+
+
+</script>
+
+{% endblock %}

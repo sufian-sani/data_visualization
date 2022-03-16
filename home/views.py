@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from unittest import result
+from django.shortcuts import render, HttpResponseRedirect, reverse
 import json
 from .models import *
 from datetime import datetime
+from .forms import *
 # Create your views here.
 
 def jsonread(data1):
@@ -16,7 +18,6 @@ def jsonread(data1):
         ls_q = ls[i]
         obj = jsonModel(**ls_q)
         obj.save()
-
 
     # get_all = jsonModel.objects.values('date', 'trade_code','high', 'low','open', 'close','volume')
     # get_all = jsonModel.objects.all()
@@ -75,9 +76,8 @@ def jsonread(data1):
     
     # key_ls = ['date', 'trade_code', 'high', 'low', 'open', 'close', 'volume']
     
-    
-
-def home(request):
+def resetdata(request):
+    jsonModel.objects.all().delete()
     json_data = open('static/stock_market_data.json')
 
     data1 = json.load(json_data)
@@ -85,9 +85,80 @@ def home(request):
     json_data.close()
 
     data1 = list(data1)
+    jsonread(data1)
+    return HttpResponseRedirect(reverse('home:home'))
+
+
+def home(request):
+
+    # line chart
+
+    get_all_close = jsonModel.objects.values_list('close')
+    close_get_all = list(get_all_close)
+
+    get_all_date = jsonModel.objects.values_list('date')
+    date_get_all = list(get_all_date)
+
+    res_close = [str(''.join(map(str, idx))) for idx in close_get_all]
+    res_date = [str(''.join(map(str, idx))) for idx in date_get_all]
+
+    result_close = []
+    for i in res_close:
+        i = i.replace(',', '')
+        result_close.append(i)
+
+    close_main_get_all = [float(''.join(map(str, idx))) for idx in result_close]
+    date_main_get_all = [str(''.join(map(str, idx))) for idx in res_date]
+
+    date_main_get_all.sort()
+
+    # line chart
+    # -------------
+    # bar chart
+
+    get_all_volume = jsonModel.objects.values_list('volume')
+    volume_get_all = list(get_all_volume)
+
+    get_all_date = jsonModel.objects.values_list('date')
+    h_date_get_all = list(get_all_date)
+
+    h_res_date = [str(''.join(map(str, idx))) for idx in h_date_get_all]
+
+    res_volume = [str(''.join(map(str, idx))) for idx in volume_get_all]
+
+    result_volume = []
+    for i in res_volume:
+        i = i.replace(',', '')
+        result_volume.append(i)
+
+    volume_main_get_all = [int(''.join(map(str, idx))) for idx in result_volume]
+
+    h_date_main_get_all = [str(''.join(map(str, idx))) for idx in h_res_date]
+
+    # res_date.sort()
+    h_date_main_get_all.sort()
+
+    # print(volume_main_get_all[6])
+    # context = {'volume_main_get_all':volume_main_get_all, 'h_date_main_get_all':h_date_main_get_all}
+
+    # bar chart
+
+    # json_data = open('static/stock_market_data.json')
+
+    # data1 = json.load(json_data)
+    # data2 = json.dumps(data1)
+    # json_data.close()
+
+    # data1 = list(data1)
+
+    queryset = jsonModel.objects.order_by('date')
     
     context = {
-        'data1':data1
+        'queryset':queryset,
+        'close_main_get_all':close_main_get_all,
+        'date_main_get_all':date_main_get_all,
+        'volume_main_get_all':volume_main_get_all,
+        'h_date_main_get_all':h_date_main_get_all,
     }
 
     # jsonread(data1)
@@ -110,3 +181,107 @@ def home(request):
 
 
     return render(request, 'home/home.html',context)
+
+def update_page(request, pk):
+    data_info = jsonModel.objects.get(pk=pk)
+    # form = forms.MusicianForm(instance=artist_info)
+    form = UpdateForm(instance=data_info)
+    if request.method == 'POST':
+        form = UpdateForm(request.POST, instance=data_info)
+
+        if form.is_valid():
+            form.save(commit=True)
+            return HttpResponseRedirect(reverse('home:home'))
+    
+    context = {
+        'title': 'Update Data',
+        'form':form
+    }
+
+    return render(request, 'home/update_page.html', context)
+
+def chatshow(request):
+    # get_all = jsonModel.objects.values_list('close')
+    get_all_close = jsonModel.objects.values_list('close')
+    close_get_all = list(get_all_close)
+
+    get_all_date = jsonModel.objects.values_list('date')
+    date_get_all = list(get_all_date)
+
+    res_close = [str(''.join(map(str, idx))) for idx in close_get_all]
+    res_date = [str(''.join(map(str, idx))) for idx in date_get_all]
+
+    # print(res_date)
+
+    result_close = []
+    for i in res_close:
+        i = i.replace(',', '')
+        result_close.append(i)
+
+    close_main_get_all = [float(''.join(map(str, idx))) for idx in result_close]
+    date_main_get_all = [str(''.join(map(str, idx))) for idx in res_date]
+
+    # res_date.sort()
+    date_main_get_all.sort()
+    # print(date_main_get_all)
+    # for i in res_date:
+    #     print(type(i))
+
+    # data = [45,98,78,25,1,2,5,4,7,8,9,5]
+
+    context = {'close_main_get_all':close_main_get_all,'date_main_get_all':date_main_get_all}
+
+    # return render(request, 'home/chat_show.html', context)
+    return render(request, 'home/chat_show2.html', context)
+
+def bar_chart(request):
+    get_all_volume = jsonModel.objects.values_list('volume')
+    volume_get_all = list(get_all_volume)
+
+    get_all_date = jsonModel.objects.values_list('date')
+    date_get_all = list(get_all_date)
+
+    res_date = [str(''.join(map(str, idx))) for idx in date_get_all]
+
+    res_volume = [str(''.join(map(str, idx))) for idx in volume_get_all]
+
+    result_volume = []
+    for i in res_volume:
+        i = i.replace(',', '')
+        result_volume.append(i)
+
+    volume_main_get_all = [int(''.join(map(str, idx))) for idx in result_volume]
+
+    date_main_get_all = [str(''.join(map(str, idx))) for idx in res_date]
+
+    # res_date.sort()
+    date_main_get_all.sort()
+
+    # print(volume_main_get_all[6])
+    context = {'volume_main_get_all':volume_main_get_all, 'date_main_get_all':date_main_get_all}
+
+    return render(request, 'home/bar_chart.html', context)
+
+def delete_page(request, pk):
+    data_info = jsonModel.objects.get(pk=pk).delete()
+    print(pk)
+    # form = UpdateForm(instance=data_info)
+
+    # return render(request, 'home/update_page.html')
+    return HttpResponseRedirect(reverse('home:home'))
+
+def add_data(request):
+    form = UpdateForm()
+    if request.method == 'POST':
+        form = UpdateForm(request.POST)
+
+        if form.is_valid():
+            form.save(commit=True)
+            return HttpResponseRedirect(reverse('home:home'))
+    
+    context = {
+        'title': 'Add Data',
+        'form':form,
+    }
+
+    return render(request, 'home/update_page.html', context)
