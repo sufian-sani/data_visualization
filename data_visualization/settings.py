@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure-a4@!d4s-5%ociv*38@9&y322um=9a&c$a4dmhpv(h_*k0#8#($
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['datavisualizationchart.herokuapp.com']
 
 
 # Application definition
@@ -94,10 +94,10 @@ WSGI_APPLICATION = 'data_visualization.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'NAME': 'd2143490hsddnm',
+        'USER': 'xevyhfrloyzmpr',
+        'PASSWORD': 'eb18135a7ae9d0561fabc109661557c4bd0059bf35bd60f018643f70f9cf23d3',
+        'HOST': 'ec2-44-195-191-252.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 
